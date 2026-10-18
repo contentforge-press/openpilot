@@ -44,14 +44,13 @@ print(result)
 
 - **免费版**：本地运行，所有功能
 - **托管版 $19/月**：云端运行，API 访问，优先模型
-- **企业版**：定制工具，私有部署，SLA
 
-👉 [立即使用托管版](https://compliance.pixharvest.com)
+👉 [立即使用托管版](https://checkout.dodopayments.com/session/cks_0NpybOiirX7X66rKHfYfM)
 
 ## 🛠️ 技术栈
 
 - Python 3.8+
-- 多模型 LLM 编排（自动降级）
+- 多模型 LLM 编排（自动降级：deepseek → glm → kimi → groq → gemini → pollinations）
 - 零依赖核心（只需 requests）
 
 ## 📄 License
