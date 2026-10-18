@@ -1,6 +1,6 @@
 """
-OpenPilot - 开源 AI 代理框架
-核心：多模型 LLM 编排 + 工具调用 + 任务自动化
+OpenPilot - Open-Source AI Agent Framework
+Core: Multi-model LLM orchestration + tool calling + task automation
 
 用法:
     from openpilot import Agent
@@ -14,11 +14,11 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 
 # 内置工具集
 class Tools:
-    """代理可调用的工具"""
+    """Tools available to the agent"""
     
     @staticmethod
     def web_search(query, max_results=5):
-        """搜索网页"""
+        """Search the web"""
         try:
             import requests
             r = requests.get(f"https://searx.be/search?q={query}&format=json", timeout=10)
@@ -31,7 +31,7 @@ class Tools:
     
     @staticmethod
     def fetch_url(url):
-        """抓取网页内容"""
+        """Fetch webpage content"""
         try:
             import requests
             r = requests.get(url, timeout=15, headers={"User-Agent": "Mozilla/5.0"})
@@ -41,7 +41,7 @@ class Tools:
     
     @staticmethod
     def read_file(path):
-        """读取文件"""
+        """Read file"""
         try:
             return open(path).read()
         except:
@@ -49,7 +49,7 @@ class Tools:
     
     @staticmethod
     def write_file(path, content):
-        """写入文件"""
+        """Write file"""
         try:
             os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
             open(path, "w").write(content)
@@ -59,7 +59,7 @@ class Tools:
     
     @staticmethod
     def send_email(to, subject, body):
-        """发送邮件（需要 Brevo key）"""
+        """Send email (requires Brevo key)"""
         try:
             key = open(os.path.join(BASE, ".brevo_key")).read().strip()
             import requests
@@ -74,22 +74,22 @@ class Tools:
     
     @staticmethod
     def now():
-        """当前时间"""
+        """Current time"""
         return time.strftime("%Y-%m-%d %H:%M:%S")
 
 
 TOOL_LIST = {
-    "web_search": "搜索网页，参数: query",
+    "web_search": "Search the web，参数: query",
     "fetch_url": "抓取网页，参数: url",
-    "read_file": "读取文件，参数: path",
-    "write_file": "写入文件，参数: path, content",
+    "read_file": "Read file，参数: path",
+    "write_file": "Write file，参数: path, content",
     "send_email": "发邮件，参数: to, subject, body",
-    "now": "当前时间",
+    "now": "Current time",
 }
 
 
 class Agent:
-    """AI 代理 - 多步骤推理 + 工具调用"""
+    """AI Agent - multi-step reasoning + tool calling"""
     
     def __init__(self, task="fast", max_steps=10):
         self.task = task
@@ -99,20 +99,20 @@ class Agent:
     
     def _tool_prompt(self):
         tools_desc = "\n".join(f"- {name}: {desc}" for name, desc in TOOL_LIST.items())
-        return f"""你是一个 AI 代理，可以调用工具完成任务。
+        return f"""You are an AI agent that can call tools to complete tasks.。
 
-可用工具:
+Available tools:
 {tools_desc}
 
-工作方式:
-1. 分析用户需求
-2. 如果需要工具，输出 JSON: {{"action": "tool_name", "args": {{"key": "value"}}}}
-3. 如果不需要工具，直接输出答案: {{"action": "answer", "content": "你的回答"}}
+How it works:
+1. Analyze the user request
+2. If tools are needed, output JSON: {{"action": "tool_name", "args": {{"key": "value"}}}}
+3. If no tools needed, output the answer directly: {{"action": "answer", "content": "你的回答"}}
 
-只输出 JSON，不要其他内容。"""
+Only output JSON, nothing else.。"""
     
     def run(self, user_input):
-        """运行代理"""
+        """Run the agent"""
         system = self._tool_prompt()
         messages = [
             {"role": "system", "content": system},
@@ -122,7 +122,7 @@ class Agent:
         for step in range(self.max_steps):
             response = chat(messages, task=self.task, max_tokens=800, timeout=90)
             if not response:
-                return "LLM 调用失败，请检查网络"
+                return "LLM call failed, check network"
             
             # 解析 JSON 响应
             try:
@@ -167,7 +167,7 @@ class Agent:
                 messages.append({"role": "assistant", "content": response})
                 messages.append({"role": "user", "content": f"未知工具: {tool_name}，请用 answer 直接回答或使用已知工具。"})
         
-        return "达到最大步骤数，最后结果: " + str(self.memory[-1] if self.memory else "无")
+        return "Max steps reached, last result: " + str(self.memory[-1] if self.memory else "无")
 
 
 if __name__ == "__main__":
